@@ -231,7 +231,7 @@ portraitRgb <- function(img, image_ratio) {
     coord_cartesian(expand = FALSE) +
     theme_void() +
     theme(legend.position = "none",
-          aspect.ratio = image_ratio,
+          aspect.ratio = 1/image_ratio,
           plot.background = element_rect(fill = "black", color = NA))
   
 }

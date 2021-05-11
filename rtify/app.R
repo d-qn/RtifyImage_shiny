@@ -120,7 +120,7 @@ portraitBspline <- function(img,
         # coord_fixed(expand = FALSE) +
         theme_void() +
         theme(legend.position = "none",
-              aspect.ratio = image_ratio,
+              aspect.ratio = 1 / image_ratio,
               plot.background = element_rect(fill = col_bg, color = NA))
     
 }
@@ -249,7 +249,7 @@ portraitRgb <- function(img, image_ratio) {
         coord_cartesian(expand = FALSE) +
         theme_void() +
         theme(legend.position = "none",
-              aspect.ratio = image_ratio,
+              aspect.ratio = 1 / image_ratio,
               plot.background = element_rect(fill = "black", color = NA))
     
 }
@@ -272,10 +272,7 @@ ui <- fluidPage(
     ),
     htmlOutput("transformation"),
     plotOutput("plot"),
-    conditionalPanel(
-        condition = "(input.rtype == 'point' || input.rtype  == 'line' || input.rtype == 'split bar')",
-        colourInput("col", "Select a background colour", "#F1E34C")
-    )
+    uiOutput("ui")
 
 )
 
@@ -308,6 +305,23 @@ server <- function(input, output, session) {
     
     artype <- reactive(input$rtype)
     
+    output$ui <- renderUI({
+        if (is.null(img()))
+            return()
+        else {
+            # Depending on input$artype, we'll generate a different
+            # UI component and send it to the client.
+            switch(artype(),
+                   "point" = ,
+                   "line" = ,
+                   "portraitSplitbar" =,
+                   "portraitBspline" = colourInput("bgcol", "Select a background colour", "#F1E34C")
+                   
+            )
+        }
+    })
+    
+    
     output$plot <- renderPlot({
         if(!is.null(img())) {
             ff <- switch(artype(),
@@ -321,7 +335,14 @@ server <- function(input, output, session) {
             )
          
             if(is.function(ff)) {
-                ff(img()[[1]])
+                switch(artype(),
+                       "point" = ,
+                       "line"  = ,
+                       "split bar" = ff(img()[[1]], col_bg = input$bgcol),
+                       "b-spline" = ff(img()[[1]], image_ratio = img()[[2]], col_bg = input$bgcol),
+                       "rgb" = ff(img()[[1]], image_ratio = img()[[2]]),
+                       "ascii" = ff(img()[[1]])
+                )
             }   
         } 
     })

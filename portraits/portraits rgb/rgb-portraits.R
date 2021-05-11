@@ -3,7 +3,7 @@ library(dplyr)
 library(magick)
 
 # Read in image and convert to grayscale
-img <- image_read("portraits/images/keanu.jpg")
+img <- image_read("../images/keanu.jpg")
 
 # Get dimensions
 img_w <- image_info(img)$width
@@ -71,6 +71,7 @@ ggplot(img_df) +
   coord_cartesian(expand = FALSE) +
   theme_void() +
   theme(legend.position = "none",
+        aspect.ratio = 1 / img_ratio ,
         plot.background = element_rect(fill = "black", color = NA))
 
   # ggsave("portraits/portraits rgb/plots/keanu-rgb.png", width = 8, height = 8 / img_ratio)
