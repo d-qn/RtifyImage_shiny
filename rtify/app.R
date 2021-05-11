@@ -38,7 +38,8 @@ ui <- fluidPage(
     ),
     htmlOutput("transformation"),
     plotOutput("plot", height = "450px",),
-    uiOutput("ui")
+    uiOutput("ui"),
+    uiOutput("uipoint")
 
 )
 
@@ -85,6 +86,23 @@ server <- function(input, output, session) {
                        "bgcol", "Select a background colour", value = input$bgcol %||% "#F1E34C"
                    )
                    
+            )
+        }
+    })
+    
+    output$uipoint <- renderUI({
+        if (is.null(img()))
+            return()
+        else {
+            # Depending on input$artype, we'll generate a different
+            # UI component and send it to the client.
+            switch(artype(),
+                   "point" = selectInput(
+                       "shape", "Select a shape", 
+                       c("point", "triangle"),
+                       multiple = F,
+                       selected = input$shape %||% "point"
+                   )
             )
         }
     })
