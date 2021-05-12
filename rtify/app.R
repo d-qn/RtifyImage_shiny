@@ -8,15 +8,24 @@ source("helpers.R")
 
 thematic_on(bg = "auto")
 
-
+# TO DO use tabsetpanel for extra options: https://github.com/nsgrantham/tidytuesdayrocks/blob/master/app.R
+# https://nsgrantham.shinyapps.io/tidytuesdayrocks/
 
 
 ##### shiny ####
 
 ui <- fluidPage(
+    tags$head(
+        tags$link(href = "https://fonts.googleapis.com/css?family=Roboto+Mono", rel = "stylesheet"),
+        tags$style(HTML('
+      * {
+        font-family: Roboto Mono;
+        font-size: 100%;
+      }'
+    ))),
     theme = shinytheme("slate"),
     
-    titlePanel("aRtify my face"),
+    h1("aRty face"),
     shinybrowser::detect(),
     
     sidebarLayout(
@@ -29,7 +38,6 @@ ui <- fluidPage(
             "rtype", "Choose a transformation", 
             c("point", "line", "rgb", "split bar", "b-spline", "ascii"),
             multiple = F),
-            br(),
             uiOutput("ui"),
             uiOutput("ui2"),
             uiOutput("uipoint"),
@@ -90,7 +98,7 @@ server <- function(input, output, session) {
                    "line" = ,
                    "split bar" =,
                    "b-spline" = colourInput(
-                       "fgcol", "Select a foreground colour", value = input$fgcol %||% "#EF8BA5"
+                       "fgcol", "Select a foreground colour", value = input$fgcol %||% "#6B0F5C"
                    )
             )
         }
