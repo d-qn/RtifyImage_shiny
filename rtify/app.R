@@ -1,44 +1,44 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-# Detect window size to resize output image 
-# https://github.com/daattali/shinybrowser
-# https://stackoverflow.com/questions/36995142/get-the-size-of-the-window-in-shiny
-
-
 library(shiny)
-library(shinybrowser)
+library(shinybrowser) # Detect window size to resize output image 
 library(colourpicker)
 library(shinythemes)
-library(thematic)
-
+library(thematic) # theme ggplot2 to shiny theme
+library(htmltools)
 source("helpers.R")
 
 thematic_on(bg = "auto")
+
+# myfooter <- function() {
+#     div(p(strong("Built with ♥︎ thanks to") Rstudio and Shiny."), 
+#         p(strong("R Packages:"), "tidyverse, tidytext, wordcloud2, tidygraph, vizNetwork, glue."),
+#         p(strong("Sources:"), a("genius.com", href = "https://genius.com/albums/The-magnetic-fields/69-love-songs"), "for lyrics,", a("wikipedia", href = "https://en.wikipedia.org/wiki/69_Love_Songs"), "for singers."),
+#         style="text-align: right;")
+#     
+# }
+
+
 
 ##### shiny ####
 
 ui <- fluidPage(
     theme = shinytheme("slate"),
-    titlePanel("aRtify my image"),
+    titlePanel("aRtify my face"),
     shinybrowser::detect(),
-    "Window width:",
-    textOutput("size"),
-    fileInput("upload", "Upload an image",
-              accept = c('image/png', 'image/jpeg', 'image/gif', 'image/jpg')),
-    selectInput(
-        "rtype", "Choose a transformation", 
-        c("point", "line", "rgb", "split bar", "b-spline", "ascii"),
-        multiple = F
+    # "Window width:",
+    # textOutpu t("size"),
+    fluidRow(
+        column(6, fileInput("upload", "Upload an image",
+                            accept = c('image/png', 'image/jpeg', 'image/gif', 'image/jpg'))),
+        column(6,    selectInput(
+            "rtype", "Choose a transformation", 
+            c("point", "line", "rgb", "split bar", "b-spline", "ascii"),
+            multiple = F
+        ))
     ),
     htmlOutput("transformation"),
-    plotOutput("plot", height = "450px",),
+    plotOutput("plot", height = "450px"),
     uiOutput("ui"),
+    uiOutput("ui2"),
     uiOutput("uipoint")
 
 )
@@ -83,9 +83,24 @@ server <- function(input, output, session) {
                    "line" = ,
                    "split bar" =,
                    "b-spline" = colourInput(
-                       "bgcol", "Select a background colour", value = input$bgcol %||% "#F1E34C"
+                       "bgcol", "Select a background colour", value = input$bgcol %||% "#EDEDC2"
                    )
-                   
+            )
+        }
+    })
+    output$ui2 <- renderUI({
+        if (is.null(img()))
+            return()
+        else {
+            # Depending on input$artype, we'll generate a different
+            # UI component and send it to the client.
+            switch(artype(),
+                   "point" = ,
+                   "line" = ,
+                   "split bar" =,
+                   "b-spline" = colourInput(
+                       "fgcol", "Select a foreground colour", value = input$fgcol %||% "#EF8BA5"
+                   )
             )
         }
     })
@@ -123,8 +138,8 @@ server <- function(input, output, session) {
                 switch(artype(),
                        "point" = ,
                        "line"  = ,
-                       "split bar" = ff(img()[[1]], col_bg = input$bgcol),
-                       "b-spline" = ff(img()[[1]], image_ratio = img()[[2]], col_bg = input$bgcol),
+                       "split bar" = ff(img()[[1]], col_fill = ifelse(is.null(input$fgcol), "black", input$fgcol) , col_bg = input$bgcol),
+                       "b-spline" = ff(img()[[1]], image_ratio = img()[[2]], col_fill = ifelse(is.null(input$fgcol), "black", input$fgcol), col_bg = input$bgcol),
                        "rgb" = ff(img()[[1]], image_ratio = img()[[2]]),
                        "ascii" = ff(img()[[1]])
                 )
