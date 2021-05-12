@@ -8,13 +8,6 @@ source("helpers.R")
 
 thematic_on(bg = "auto")
 
-# myfooter <- function() {
-#     div(p(strong("Built with ♥︎ thanks to") Rstudio and Shiny."), 
-#         p(strong("R Packages:"), "tidyverse, tidytext, wordcloud2, tidygraph, vizNetwork, glue."),
-#         p(strong("Sources:"), a("genius.com", href = "https://genius.com/albums/The-magnetic-fields/69-love-songs"), "for lyrics,", a("wikipedia", href = "https://en.wikipedia.org/wiki/69_Love_Songs"), "for singers."),
-#         style="text-align: right;")
-#     
-# }
 
 
 
@@ -22,24 +15,29 @@ thematic_on(bg = "auto")
 
 ui <- fluidPage(
     theme = shinytheme("slate"),
+    
     titlePanel("aRtify my face"),
     shinybrowser::detect(),
-    # "Window width:",
-    # textOutpu t("size"),
-    fluidRow(
-        column(6, fileInput("upload", "Upload an image",
-                            accept = c('image/png', 'image/jpeg', 'image/gif', 'image/jpg'))),
-        column(6,    selectInput(
+    
+    sidebarLayout(
+        sidebarPanel(
+            # "Window width:",
+            # textOutput("size"),
+            fileInput("upload", "Upload an image",
+                      accept = c('image/png', 'image/jpeg', 'image/gif', 'image/jpg')),
+            selectInput(
             "rtype", "Choose a transformation", 
             c("point", "line", "rgb", "split bar", "b-spline", "ascii"),
-            multiple = F
-        ))
-    ),
-    htmlOutput("transformation"),
-    plotOutput("plot", height = "450px"),
-    uiOutput("ui"),
-    uiOutput("ui2"),
-    uiOutput("uipoint")
+            multiple = F),
+            br(),
+            uiOutput("ui"),
+            uiOutput("ui2"),
+            uiOutput("uipoint"),
+        width = 5),
+        mainPanel(
+            plotOutput("plot", height = "450px"),
+        width = 7)
+    )
 
 )
 
@@ -51,13 +49,6 @@ server <- function(input, output, session) {
             shinybrowser::get_height()
         )
     })
-    
-    output$transformation <- renderText(
-        if(!is.null(img())) {
-            paste0(
-                "<b>", input$rtype, "</b> transformation of your image")
-        }
-    )
     
     img <- reactive({
         inFile <- input$upload
