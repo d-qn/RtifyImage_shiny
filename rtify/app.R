@@ -7,12 +7,6 @@ source("helpers.R")
 
 thematic_on(bg = "auto")
 
-# footer <- div(
-#   p(paste0(
-#     "Built with ",
-#     )
-# )
-
 ##### shiny ####
 
 ui <- fluidPage(
@@ -24,16 +18,20 @@ ui <- fluidPage(
        }
         h1,h2,h3,h4 {
           font-family: Roboto Mono;
+        }
+      a {
+      color: #B31098;
         }'
     ))),
     theme = shinytheme("slate"),
     h1("aRty face"),
+    h4("Translates pixels into data visualisation"),
     sidebarLayout(
         position = "right",
         sidebarPanel(
             fileInput("upload", h4("Upload an image"),
                       accept = c('image/png', 'image/jpeg', 'image/gif', 'image/jpg')),
-            sliderInput("longest_dim", "Rough - more detailed (longest pixel dimension) ",
+            sliderInput("longest_dim", "Resolution (rough - more detailed)",
                                min = 40, max = 140, value = 80),
             selectInput(
             "rtype", "Choose a transformation", 
@@ -42,12 +40,25 @@ ui <- fluidPage(
             uiOutput("ui"),
             uiOutput("ui2"),
             uiOutput("uipoint"),
-        width = 4),
+        width = 5),
         mainPanel(
             plotOutput("plot", height = "450px"),
-        width = 8)
+        width = 7)
+    ),
+    p("Built with ", tags$a(href="https://shiny.rstudio.com", "Shiny"), "&",
+      tags$a(href="https://www.rstudio.com", "R"), "by",
+      tags$a(href="https://twitter.com/duc_qn", "Duc-Quang Nguyen."),
+      "Shamelessly based on ", 
+      tags$a(href="https://github.com/gkaramanis/aRtist", "Georgios Karamanis"),
+      "R code. Original idea by", 
+      tags$a(href="https://twitter.com/elanaEllesce", "Elana Levin Schtulberg:"),
+      "check ", tags$a(href="https://blog.datawrapper.de/stacked-bar-chart-art/", 
+                       "her datawrapper post"),  
+      "and her", tags$a(href="http://www.elanalevinschtulberg.com/chartify/", "web tool.")
+    ),
+      
+    p(tags$a(href="https://github.com/d-qn/RtifyImage_shiny/tree/main/rtify", "Crappy R code")  
     )
-
 )
 
 server <- function(input, output, session) {
@@ -64,15 +75,17 @@ server <- function(input, output, session) {
     artype <- reactive(input$rtype)
     
     shape <- reactive({
-      switch(input$shape,
-        "point" = 16, 
-        "triangle" = 17, 
-        "diamond" = 18, 
-        "square" = 15, 
-        "smaller point" = 20,
-        "$" = 36,
-        stop("Invalid input shape")
-      )
+      if(!is.null(input$shape) ) {
+        switch(input$shape,
+               "point" = 16, 
+               "triangle" = 17, 
+               "diamond" = 18, 
+               "square" = 15, 
+               "smaller point" = 20,
+               "$" = 36,
+               stop("Invalid input shape")
+        )
+      }
     })
     
     output$ui <- renderUI({
@@ -109,21 +122,17 @@ server <- function(input, output, session) {
     })
     
     output$uipoint <- renderUI({
-        if (is.null(img()))
-            return()
-        else {
-            # Depending on input$artype, we'll generate a different
-            # UI component and send it to the client.
-            switch(artype(),
-                   "point" = selectInput(
-                       "shape", "Select a shape", 
-                       c("point", "triangle", "diamond", "square", "smaller point", 
-                         "$"),
-                       multiple = F,
-                       selected = input$shape %||% "point"
-                   )
-            )
-        }
+      # Depending on input$artype, we'll generate a different
+      # UI component and send it to the client.
+      switch(artype(),
+             "point" = selectInput(
+               "shape", "Select a shape", 
+               c("point", "triangle", "diamond", "square", "smaller point", 
+                 "$"),
+               multiple = F,
+               selected = input$shape %||% "point"
+             )
+      )
     })
     
     output$plot <- renderPlot({
