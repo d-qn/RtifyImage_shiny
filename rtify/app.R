@@ -7,9 +7,11 @@ source("helpers.R")
 
 thematic_on(bg = "auto")
 
-# TO DO use tabsetpanel for extra options: https://github.com/nsgrantham/tidytuesdayrocks/blob/master/app.R
-# https://nsgrantham.shinyapps.io/tidytuesdayrocks/
-
+# footer <- div(
+#   p(paste0(
+#     "Built with ",
+#     )
+# )
 
 ##### shiny ####
 
@@ -18,26 +20,21 @@ ui <- fluidPage(
         tags$link(href = "https://fonts.googleapis.com/css?family=Roboto+Mono", rel = "stylesheet"),
         tags$style(HTML('
       * {
-        font-family: Roboto Mono;
-        font-size: 100%;
+        font-family: Roboto Mono; font-size: 100%;
        }
         h1,h2,h3,h4 {
           font-family: Roboto Mono;
         }'
     ))),
     theme = shinytheme("slate"),
-    
     h1("aRty face"),
-    
     sidebarLayout(
         position = "right",
         sidebarPanel(
-            # "Window width:",
-            # textOutput("size"),
             fileInput("upload", h4("Upload an image"),
                       accept = c('image/png', 'image/jpeg', 'image/gif', 'image/jpg')),
-            sliderInput("longest_dim", "Longest pixel dimension",
-                               min = 40, max = 150, value = 80),
+            sliderInput("longest_dim", "Rough - more detailed (longest pixel dimension) ",
+                               min = 40, max = 140, value = 80),
             selectInput(
             "rtype", "Choose a transformation", 
             c("point", "line", "rgb", "split bar", "b-spline", "ascii"),
@@ -45,10 +42,10 @@ ui <- fluidPage(
             uiOutput("ui"),
             uiOutput("ui2"),
             uiOutput("uipoint"),
-        width = 5),
+        width = 4),
         mainPanel(
             plotOutput("plot", height = "450px"),
-        width = 7)
+        width = 8)
     )
 
 )
@@ -124,8 +121,7 @@ server <- function(input, output, session) {
                          "$"),
                        multiple = F,
                        selected = input$shape %||% "point"
-                   ),
-                   NULL
+                   )
             )
         }
     })
