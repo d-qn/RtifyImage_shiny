@@ -1,5 +1,4 @@
 library(shiny)
-library(shinybrowser) # Detect window size to resize output image 
 library(colourpicker)
 library(shinythemes)
 library(thematic) # theme ggplot2 to shiny theme
@@ -21,19 +20,24 @@ ui <- fluidPage(
       * {
         font-family: Roboto Mono;
         font-size: 100%;
-      }'
+       }
+        h1,h2,h3,h4 {
+          font-family: Roboto Mono;
+        }'
     ))),
     theme = shinytheme("slate"),
     
     h1("aRty face"),
-    shinybrowser::detect(),
     
     sidebarLayout(
+        position = "right",
         sidebarPanel(
             # "Window width:",
             # textOutput("size"),
-            fileInput("upload", "Upload an image",
+            fileInput("upload", h4("Upload an image"),
                       accept = c('image/png', 'image/jpeg', 'image/gif', 'image/jpg')),
+            sliderInput("longest_dim", "Longest pixel dimension",
+                               min = 40, max = 150, value = 80),
             selectInput(
             "rtype", "Choose a transformation", 
             c("point", "line", "rgb", "split bar", "b-spline", "ascii"),
@@ -51,25 +55,28 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
    
-    output$size <- renderText({
-        paste(
-            shinybrowser::get_width(), "x",
-            shinybrowser::get_height()
-        )
-    })
-    
     img <- reactive({
         inFile <- input$upload
         if (is.null(inFile)) {
-            return()
+          loadImageResize("audrey.jpg", input$longest_dim)
         } else {
-            loadImageResize(
-                inFile$datapath, 
-                ifelse( shinybrowser::get_width() < 500, 70, 90))
+            loadImageResize(inFile$datapath, input$longest_dim)
         }
     })
     
     artype <- reactive(input$rtype)
+    
+    shape <- reactive({
+      switch(input$shape,
+        "point" = 16, 
+        "triangle" = 17, 
+        "diamond" = 18, 
+        "square" = 15, 
+        "smaller point" = 20,
+        "$" = 36,
+        stop("Invalid input shape")
+      )
+    })
     
     output$ui <- renderUI({
         if (is.null(img()))
@@ -82,8 +89,7 @@ server <- function(input, output, session) {
                    "line" = ,
                    "split bar" =,
                    "b-spline" = colourInput(
-                       "bgcol", "Select a background colour", value = input$bgcol %||% "#EDEDC2"
-                   )
+                   "bgcol", "Select a background colour", value = input$bgcol %||% "#EDEDC2")
             )
         }
     })
@@ -98,7 +104,8 @@ server <- function(input, output, session) {
                    "line" = ,
                    "split bar" =,
                    "b-spline" = colourInput(
-                       "fgcol", "Select a foreground colour", value = input$fgcol %||% "#6B0F5C"
+                       "fgcol", "Select a foreground colour", 
+                       value = input$fgcol %||% "#6B0F5C"
                    )
             )
         }
@@ -113,10 +120,12 @@ server <- function(input, output, session) {
             switch(artype(),
                    "point" = selectInput(
                        "shape", "Select a shape", 
-                       c("point", "triangle"),
+                       c("point", "triangle", "diamond", "square", "smaller point", 
+                         "$"),
                        multiple = F,
                        selected = input$shape %||% "point"
-                   )
+                   ),
+                   NULL
             )
         }
     })
@@ -135,12 +144,13 @@ server <- function(input, output, session) {
          
             if(is.function(ff)) {
                 switch(artype(),
-                       "point" = ,
                        "line"  = ,
                        "split bar" = ff(img()[[1]], col_fill = ifelse(is.null(input$fgcol), "black", input$fgcol) , col_bg = input$bgcol),
                        "b-spline" = ff(img()[[1]], image_ratio = img()[[2]], col_fill = ifelse(is.null(input$fgcol), "black", input$fgcol), col_bg = input$bgcol),
                        "rgb" = ff(img()[[1]], image_ratio = img()[[2]]),
-                       "ascii" = ff(img()[[1]])
+                       "ascii" = ff(img()[[1]]),
+                       "point" = ff(img()[[1]], shape = shape() %||% 16, col_fill = ifelse(is.null(input$fgcol), "black", input$fgcol) , col_bg = input$bgcol),
+                       stop("invalid ff")
                 )
             }   
         } 

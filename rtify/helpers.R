@@ -1,4 +1,3 @@
-
 library(dplyr)
 library(tidyr)
 library(magick)
@@ -118,7 +117,6 @@ portraitPoint <- function(img,
   img_df <- img %>% 
     image_convert(colorspace = "gray") %>% 
     img2df() 
-  
   
   ggplot(img_df) +
     geom_point(aes(x = x, y = y, size = bf), 
