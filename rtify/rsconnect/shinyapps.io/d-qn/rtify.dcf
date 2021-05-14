@@ -5,9 +5,9 @@ account: d-qn
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 4110625
-bundleId: 4586227
+bundleId: 4594420
 url: https://d-qn.shinyapps.io/rtify/
-when: 1620747811.82409
-lastSyncTime: 1620747811.8241
+when: 1620917048.59023
+lastSyncTime: 1620917048.59024
 asMultiple: FALSE
 asStatic: FALSE

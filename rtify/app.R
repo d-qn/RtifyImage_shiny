@@ -57,7 +57,7 @@ ui <- fluidPage(
       "and her", tags$a(href="http://www.elanalevinschtulberg.com/chartify/", "web tool.")
     ),
       
-    p(tags$a(href="https://github.com/d-qn/RtifyImage_shiny/tree/main/rtify", "Crappy R code")  
+    p(icon("github"), tags$a(href="https://github.com/d-qn/RtifyImage_shiny/tree/main/rtify", "R code")  
     )
 )
 
