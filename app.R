@@ -3,7 +3,6 @@ library(colourpicker)
 library(shinythemes)
 library(thematic) # theme ggplot2 to shiny theme
 library(htmltools)
-library(renv)
 source("helpers.R")
 
 generateLockFile <- F
@@ -170,3 +169,4 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
+
