@@ -1,2 +1,0 @@
-# RtifyImage_shiny
- init
